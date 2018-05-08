@@ -1,0 +1,34 @@
+import sys
+
+import pygame
+
+from settings import Settings
+from ship import Ship
+
+def run_game():
+    #初始化游戏并创建一个屏幕对象
+    pygame.init()
+    ai_settings = Settings()
+    screen=pygame.display.set_mode(
+        (ai_settings.screen_width, ai_settings.screen_height))
+    pygame.display.set_caption('Alien Invasion')
+
+    #create a ship
+    ship= Ship(screen)
+
+    # Game Main Cycle
+    while True:
+
+        #monitor keyboard and mouth event
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+        # Each time Cycle, re-draw screen
+        screen.fill(ai_settings.bg_color)
+        ship.blitme()
+
+        #Let recent drawing can be seen
+        pygame.display.flip()
+
+run_game()
