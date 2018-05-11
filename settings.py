@@ -8,11 +8,18 @@ class Settings():
         self.screen_height= 800
         self.bg_color= (230,230,230)
 
+        #Aliens Para
+        self.alien_speed_factor = 1
+        self.fleet_drop_speed = 10
+        #fleet_direction = 1 means move to right, vice versa
+        self.fleet_direction = 1
+
         # Ship Parameter
         self.ship_speed_factor = 1.5
+        self.ship_left = 3
 
         #Bullet Parameter
-        self.bullet_speed_factor = 1
+        self.bullet_speed_factor = 3
         self.bullet_width = 3
         self.bullet_height = 15
         self.bullet_color = 60, 60, 60

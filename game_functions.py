@@ -1,4 +1,5 @@
 import sys
+from time import sleep
 
 import pygame
 
@@ -57,7 +58,7 @@ def update_screen(ai_settings, screen, ship, aliens, bullets):
     pygame.display.flip()
 
 
-def update_bullets(bullets):
+def update_bullets(ai_settings, screen, ship, aliens, bullets):
     """update bullets position, and delete missed bullets"""
     #update bullets position
     bullets.update()
@@ -67,31 +68,85 @@ def update_bullets(bullets):
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
 
+    check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets)
+
+def check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets):
+    """response bullet and alien collision"""
+    # Delete collision B and A
+    collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+    
+    if len(aliens) == 0:
+        #delete current bullets and create new group of aliens
+        bullets.empty()
+        create_fleet(ai_settings, screen, ship, aliens)
+    
+
+    
 def get_number_aliens_x(ai_settings, alien_width):
     """calc how many aliens can be in one line"""
     available_space_x = ai_settings.screen_width - 2* alien_width
     number_aliens_x = int(available_space_x / (2* alien_width))
     return number_aliens_x
 
-def create_alien(ai_settings, screen, aliens, alien_number):
+
+def get_number_rows(ai_settings, ship_height, alien_height):
+    """calc rows for alien"""
+    available_space_y = (ai_settings.screen_height -
+                         (3 * alien_height) - ship_height)
+    number_rows = int(available_space_y / (2 * alien_height))
+    return number_rows
+
+
+def create_alien(ai_settings, screen, aliens, alien_number, row_number):
     """create a alien and insert to current line"""
     alien = Alien(ai_settings, screen)
     alien_width = alien.rect.width
     alien.x = alien_width + 2* alien_width * alien_number
     alien.rect.x = alien.x
+    alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
     aliens.add(alien)
     
 
-def create_fleet(ai_settings, screen, aliens):
+def create_fleet(ai_settings, screen, ship, aliens):
     """create aliens group"""
     #alien distance equals width of alien
     alien = Alien(ai_settings, screen)
     number_aliens_x = get_number_aliens_x(ai_settings, alien.rect.width)
+    number_rows = get_number_rows(ai_settings, ship.rect.height,
+                                  alien.rect.height)
+
+    #create aliens group
+    for row_number in range(number_rows):
+        for alien_number in range(number_aliens_x):
+            create_alien(ai_settings, screen, aliens, alien_number,
+                         row_number)
+
+def check_fleet_edge(ai_settings, aliens):
+    """alien reach edge"""
+    for alien in aliens.sprites():
+        if alien.check_edges():
+            change_fleet_direction(ai_settings, aliens)
+            break
+
+def change_fleet_direction(ai_settings, aliens):
+    """move aliens down, and change direction"""
+    for alien in aliens.sprites():
+        alien.rect.y += ai_settings.fleet_drop_speed
+    ai_settings.fleet_direction *= -1
+
+    
+def update_aliens(ai_settings, ship, aliens):
+    """check if aliens at edge, update all aliens position"""
+    check_fleet_edge(ai_settings, aliens)
+    aliens.update()
+
+    #check A and S collision
+    if pygame.sprite.spritecollideany(ship, aliens):
+        print('Ship hit!!!')
 
 
-    #create first alien
-    for alien_number in range(number_aliens_x):
-        create_alien(ai_settings, screen, aliens, alien_number)
+    
+
         
 
         
