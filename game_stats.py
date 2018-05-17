@@ -8,10 +8,14 @@ class GameStats():
         #game starting active status
         self.game_active = False
 
+        #Highest score
+        self.high_score = 0
+
         
     def reset_stats(self):
         """init stat info in the game running"""
         self.ships_left = self.ai_settings.ship_limit
         self.score = 0
+        self.level = 1
 
         
